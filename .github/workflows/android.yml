@@ -33,9 +33,22 @@ jobs:
       - name: Build release APK
         run: ./gradlew clean assembleRelease
 
+      - name: Prepare release artifact
+        run: |
+          set -euo pipefail
+          ARTIFACT_DIR="app/build/outputs/apk/release"
+          SOURCE_APK="${ARTIFACT_DIR}/app-release-unsigned.apk"
+          TARGET_APK="${ARTIFACT_DIR}/advanced-calculator-arm64.apk"
+          if [ ! -f "${SOURCE_APK}" ]; then
+            echo "Expected release APK ${SOURCE_APK} not found" >&2
+            ls -R "${ARTIFACT_DIR}" || true
+            exit 1
+          fi
+          cp "${SOURCE_APK}" "${TARGET_APK}"
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: advanced-calculator-arm64
-          path: app/build/outputs/apk/release/app-release.apk
+          path: app/build/outputs/apk/release/advanced-calculator-arm64.apk
           if-no-files-found: error
